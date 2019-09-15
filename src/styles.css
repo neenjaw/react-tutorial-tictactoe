@@ -56,6 +56,10 @@ ul {
   margin-left: 20px;
 }
 
+.game-info ol {
+  list-style: none;
+}
+
 .reset-btn {
   margin-top: 15px;
 }

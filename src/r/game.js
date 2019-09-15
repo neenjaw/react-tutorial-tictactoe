@@ -6,19 +6,10 @@ export class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = newGame();
-    // {
-    //   history: [
-    //     {
-    //       squares: Array(9).fill(null)
-    //     }
-    //   ],
-    //   xIsNext: true
-    // };
   }
 
   handleClick(i) {
     const history = this.state.history;
-    // const current = history[history.length - 1];
     const current = history[0];
     const squares = current.squares.slice();
 
@@ -28,17 +19,21 @@ export class Game extends React.Component {
 
     squares[i] = this.state.xIsNext ? "X" : "O";
     this.setState({
-      // history: history.concat([
-      //   {
-      //     squares: squares
-      //   }
-      // ]),
       history: [
         {
           squares: squares
         }
       ].concat(history),
+      stepNumber: history.length,
       xIsNext: !this.state.xIsNext
+    });
+  }
+
+  jumpTo(step) {
+    this.setState({
+      history: this.state.history.slice((step + 1) * -1),
+      stepNumber: step,
+      xIsNext: step % 2 === 0
     });
   }
 
@@ -51,11 +46,25 @@ export class Game extends React.Component {
     const current = history[0];
     const winner = calculateWinner(current.squares);
 
+    const moves = history
+      .slice()
+      .reverse()
+      .map((step, move) => {
+        const desc = move ? "Go to move #" + move : "Go to game start";
+
+        return (
+          <li key={move}>
+            <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          </li>
+        );
+      })
+      .slice(0, -1);
+
     let status;
     if (winner) {
       status = "Winner: " + winner;
     } else {
-      status = "Next player: " + (this.state.xIsNext ? "X" : "O");
+      status = `Next move, player: ${this.state.xIsNext ? "X" : "O"}`;
     }
 
     return (
@@ -67,8 +76,9 @@ export class Game extends React.Component {
           </button>
         </div>
         <div className="game-info">
+          <div>{`Moves: ${this.state.stepNumber}`}</div>
           <div>{status}</div>
-          <ol>{/* TODO */}</ol>
+          <ol>{moves}</ol>
         </div>
       </div>
     );
@@ -82,6 +92,7 @@ function newGame() {
         squares: Array(9).fill(null)
       }
     ],
+    stepNumber: 0,
     xIsNext: true
   };
 }
